@@ -1,7 +1,16 @@
 {% extends "base.html" %} {% block title%}Home Page{% endblock %} {% block
 content %}
+
+
 <html>
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+            </div>      
+        {% endfor %}
   <body> 
+        
+
         {% if name %}
         <h1>Hello {{ name }}!!</h1>
         {% else %}
