@@ -25,9 +25,18 @@ class Customers(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.name
 
+class CustomerForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
 class NamerForm(FlaskForm):
     name = StringField("Whats your name", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+@app.route('/customer/add', methods =['GET', 'POST'])
+def add_customer():
+    return render_template("add_customer.html")
 
 @app.route('/')
 
@@ -41,6 +50,11 @@ services = ["Residential", "Commercial", "Pressure Waashing", "windows",
 
 def services():
     return render_template("services.html")
+
+@app.route('/packages')
+
+def packages():
+    return render_template("packages.html")
 
 @app.errorhandler(404)
 def page_not_found(e):
