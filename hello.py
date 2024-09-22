@@ -3,11 +3,12 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+import datetime 
 
 app = Flask(__name__)
 #Add Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///customers.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #Secret Key
 app.config['SECRET_KEY'] = "Secret Key"
@@ -19,7 +20,7 @@ db = SQLAlchemy(app)
 class Customers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
     date_added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     def __repr__(self):
@@ -36,7 +37,21 @@ class NamerForm(FlaskForm):
 
 @app.route('/customer/add', methods =['GET', 'POST'])
 def add_customer():
-    return render_template("add_customer.html")
+    name = None
+    form = CustomerForm()
+    if form.validate_on_submit():
+        user = Users.query.fiter_by(email=form.email.data).first()
+        if user is None:
+            user = Users(name=form.name.data, email=form.name.data)
+            db.session.add(user)
+            db.commit()
+        name = form.name.data
+        form.name.data = ''
+        form.email.data = ''
+        flash("User Added successfully!!")
+        our_users = Customers.query.order_by(Customers.date_added)
+    return render_template("add_customer.html", form=form, 
+        name=name)
 
 @app.route('/')
 

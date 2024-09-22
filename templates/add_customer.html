@@ -10,25 +10,33 @@
             {% endfor %}
      
             {% if name %}
-            <h1>Hello {{ name }}!!</h1>
-            <br/>
-            <img src="{{url_for('static', 
-            filename='images/clean.png')}}" 
-            width=900>
-            <br/><br/>
-            <p id="demo"> This is stuff.....</p>
-            <script src="{{ url_for('static', filename='js/myfile.js')}}"></script>
+            
             {% else %}
             <h1>Customer List</h1>
             </br>
             <form method="POST">
+                {{ form.name.label(class="form-label") }}
+
+                {{ form.name(class="form-control") }}
+
                 {{ form.hidden_tag() }}
+
                 {{ form.email.label(class="form-label") }}
+
                 {{ form.email(class="form-control") }}
+
                 <br/>
                 {{ form.submit(class="btn btn-primary") }}
             </form>
-            {% endif %} {% endblock %}
+            <br/><br/><br/>
+            {% for our_user in our_users%}
+                {{ our_user.id }} on {{ our_user.name
+                }} - {{ our_user.email }}<br/>
+            {% endfor %}
+            
+            {% endif %} 
+    </html>     
+{% endblock %}
      
-    </html>
+   
     
