@@ -1,25 +1,27 @@
-{% extends "base.html" %} {% block title%}Home Page{% endblock %} {% block
-    content %}
+{% extends "base.html" %} 
+{% block content %}
     
-    
-    <html>
-            {% for message in get_flashed_messages() %}
-                <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                    <strong>{{ message }}</strong>
-                </div>      
-            {% endfor %}
+{% for message in get_flashed_messages() %}
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>      
+{% endfor %}
      
-            {% if name %}
-            
-            {% else %}
-            <h1>Customer List</h1>
-            </br>
-            <form method="POST">
+{% if name %}
+        <h1>Customer Added!</h1>
+        <br/><br/>
+{% else %}
+        <h1>Customer List</h1>
+        </br>
+        <form method="POST">
+                {{ form.hidden_tag() }}
+
                 {{ form.name.label(class="form-label") }}
 
-                {{ form.name(class="form-control") }}
-
-                {{ form.hidden_tag() }}
+                {{ form.name(
+                    class="form-control") }}
+                <br/>
 
                 {{ form.email.label(class="form-label") }}
 
@@ -27,15 +29,14 @@
 
                 <br/>
                 {{ form.submit(class="btn btn-primary") }}
-            </form>
-            <br/><br/><br/>
-            {% for our_user in our_users%}
-                {{ our_user.id }} on {{ our_user.name
-                }} - {{ our_user.email }}<br/>
-            {% endfor %}
-            
-            {% endif %} 
-    </html>     
+        </form>
+<br/><br/><br/>
+{% for our_customer in our_customers %}
+    {{ our_customer.id }} on {{ our_customer.name}} - {{ our_customer.email }}
+    <br/>                               
+{% endfor %}
+                                
+{% endif %} 
 {% endblock %}
      
    

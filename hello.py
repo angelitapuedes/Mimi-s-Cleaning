@@ -38,19 +38,19 @@ class NamerForm(FlaskForm):
 @app.route('/customer/add', methods =['GET', 'POST'])
 def add_customer():
     name = None
-    our_customers = None
     form = CustomerForm()
     if form.validate_on_submit():
         customer = Customers.query.filter_by(email=form.email.data).first()
         if customer is None:
-            customer = Customers(name=form.name.data, email=form.name.data)
+            customer = Customers(name=form.name.data, email=form.email.data)
             db.session.add(customer)
             db.session.commit()
         name = form.name.data
         form.name.data = ''
         form.email.data = ''
+        
         flash("User Added successfully!!")
-        our_customers = Customers.query.order_by(Customers.date_added)
+    our_customers = Customers.query.order_by(Customers.date_added)
     return render_template("add_customer.html", 
         form=form, 
         name=name,
