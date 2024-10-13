@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -16,6 +16,8 @@ app.config['SECRET_KEY'] = "Secret Key"
 #Initialize db
 db = SQLAlchemy(app)
 
+
+
 #Create a Model
 class Customers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -26,6 +28,29 @@ class Customers(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.name
 
+#update record
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+def update(id):
+    form = CustomerForm()
+    name_to_update = Customers.query.get_or_404(id)
+    if request.method == "POST":
+        name_to_update.name = request.form['name']
+        name_to_update.email = request.form['email']
+        try:
+            db.session.commit()
+            flash("Customer Updated Successfully!")
+            return render_template("update.html", 
+                form=form, 
+                name_to_update = name_to_update)
+        except:
+            flash("Looks like there was a problem...try again")
+            return render_template("update.html", 
+                form=form, 
+                name_to_update = name_to_update)
+    else:
+        return render_template("update.html", 
+                form=form, 
+                name_to_update = name_to_update)
 class CustomerForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
@@ -55,6 +80,7 @@ def add_customer():
         form=form, 
         name=name,
         our_customers=our_customers)
+
 
 @app.route('/')
 
