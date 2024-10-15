@@ -11,6 +11,18 @@
 {% if name %}
         <h1>Update Customer!</h1>
         <br/><br/>
+<table class="table table-hover
+table-bordered table-striped">
+
+{% for our_customers in our_customers %}
+    <tr>
+    <td>{{ our_customer.id }}. {{ our_customer.name
+        }} - {{our_customer.email }} - {{
+            our_customer.favorite_color }}</td>
+    </tr>
+{% endfor %}
+
+</table>
 {% else %}
         <h1>Update Customer.....</h1>
         </br>
@@ -27,6 +39,12 @@
                 {{ form.email.label(class="form-label") }}
 
                 {{ form.email(class="form-control", value=name_to_update.email) }}
+
+                <br/>
+                {{ form.favorite_color.label(class="form-label") }}
+
+                {{ form.favorite_color(
+                    class="form-control", value=name_to_update.favorite_color) }}
 
                 <br/>
                 {{ form.submit(class="btn btn-primary") }}
