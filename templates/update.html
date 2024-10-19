@@ -16,9 +16,13 @@ table-bordered table-striped">
 
 {% for our_customers in our_customers %}
     <tr>
-    <td>{{ our_customer.id }}. {{ our_customer.name
-        }} - {{our_customer.email }} - {{
-            our_customer.favorite_color }}</td>
+    <td>{{ our_customer.id }}. <a href="{{
+    url_for('update', id=our_customer.id)}}">{{ 
+    our_customer.name}}</a> - {{
+    our_customer.email }} - {{
+    our_customer.favorite_color }} -
+    <a href="{{url_for('delete', 
+    id=our_customer.id)}}">Delete</a></td>
     </tr>
 {% endfor %}
 
@@ -47,7 +51,11 @@ table-bordered table-striped">
                     class="form-control", value=name_to_update.favorite_color) }}
 
                 <br/>
-                {{ form.submit(class="btn btn-primary") }}
+                {{ form.submit(class="btn 
+                btn-primary") }}
+
+                <a href="{{url_for('delete', 
+                id=id)}}" class="btn btn-danger">Delete</a>
         </form>
 <br/><br/><br/>
 

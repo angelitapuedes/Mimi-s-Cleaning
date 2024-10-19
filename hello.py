@@ -18,7 +18,26 @@ app.config['SECRET_KEY'] = "Secret Key"
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
+@app.route('/delete/<int:id>')
+def delete(id):
+    user_to_delete = Customers.query.get_or_404(id)
+    name = None
+    form = CustomerForm()
+    try:
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        flash("User Deleted Successfully")
+        our_customers = Customers.query.order_by(Customers.date_added)
+        return render_template("add_customer.html", 
+            form=form, 
+            name=name,
+            our_customers=our_customers)
+    except:
+        flash("Whoops there was a problem deleting")
+        return render_template("add_customer.html", 
+            form=form, 
+            name=name,
+            our_customers=our_customers)
 
 #Create a Model
 class Customers(db.Model):
@@ -54,8 +73,10 @@ def update(id):
                 name_to_update = name_to_update)
     else:
         return render_template("update.html", 
-                form=form, 
-                name_to_update = name_to_update)
+            form=form, 
+            name_to_update = name_to_update,
+            id = id)
+    
 class CustomerForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])

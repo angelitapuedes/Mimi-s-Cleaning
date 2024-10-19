@@ -42,7 +42,10 @@
     <td>{{ our_customer.id }}. <a href="{{url_for('update', id=our_customer.id)}}"
     >{{ our_customer.name}}</a> - {{ 
         our_customer.email }} - {{ 
-        our_customer.favorite_color}}</td>
+        our_customer.favorite_color}} -
+        <a href="{{url_for('delete', id=our_customer.id)}}">Delete
+
+        </td>
     </tr>                               
 {% endfor %}
                                 
