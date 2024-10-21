@@ -1,7 +1,7 @@
 from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
+from wtforms.validators import DataRequired, EqualTo, Length
 import datetime 
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -95,6 +95,8 @@ class CustomerForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
     favorite_color = StringField("Favorite Color")
+    password_hash = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='Passwords Must Match')])
+    password_hash2 = PasswordField('Confirm Password', validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 class NamerForm(FlaskForm):
@@ -108,13 +110,16 @@ def add_customer():
     if form.validate_on_submit():
         customer = Customers.query.filter_by(email=form.email.data).first()
         if customer is None:
-            customer = Customers(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data)
+            # Hah the password
+            hashed_pw = generate_password_hash(form.password_hash.data, "pbkdf2:sha256")
+            customer = Customers(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data, password_hash=hashed_pw)
             db.session.add(customer)
             db.session.commit()
         name = form.name.data
         form.name.data = ''
         form.email.data = ''
         form.favorite_color.data = ''
+        form.password_hash.data = ''
         
         flash("User Added successfully!!")
     our_customers = Customers.query.order_by(Customers.date_added)

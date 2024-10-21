@@ -29,26 +29,44 @@
 
                 <br/>
 
-                {{ form.favorite_color.label(class="form-label") }}
+                {{ form.favorite_color.label(
+                    class="form-label") }}
 
                 {{ form.favorite_color(
                     class="form-control") }}
                 <br/>
-                {{ form.submit(class="btn btn-primary") }}
+                {{ form.password_hash.label(
+                    class="form-label") }}
+
+                {{ form.password_hash(
+                    class="form-control") }}
+                <br/>
+                {{ form.password_hash2.label(
+                    class="form-label") }}
+
+                {{ form.password_hash2(
+                    class="form-control") }}
+                <br/>
+                {{ form.submit(class="btn 
+                btn-primary") }}
         </form>
 <br/><br/><br/>
+<table class="table table-hover
+table-bordered table-striped">
+
 {% for our_customer in our_customers %}
     <tr>
-    <td>{{ our_customer.id }}. <a href="{{url_for('update', id=our_customer.id)}}"
-    >{{ our_customer.name}}</a> - {{ 
-        our_customer.email }} - {{ 
-        our_customer.favorite_color}} -
-        <a href="{{url_for('delete', id=our_customer.id)}}">Delete
-
-        </td>
+    <td>{{ our_customer.id }}. <a href="{{
+    url_for('update', id=our_customer.id)}}">{{ 
+    our_customer.name}}</a> - {{ 
+    our_customer.email }} - {{ 
+    our_customer.favorite_color}} -
+    PW: {{ our_customer.password_hash }} -
+    <a href="{{url_for('delete', 
+    id=our_customer.id)}}">Delete</a></td>
     </tr>                               
 {% endfor %}
-                                
+ </table>                               
 {% endif %} 
 {% endblock %}
      
