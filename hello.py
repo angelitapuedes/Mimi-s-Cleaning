@@ -45,7 +45,7 @@ class Customers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(120), nullable=False, unique=True)
-    favorite_color = db.Column(db.String(120))
+    clean_package = db.Column(db.String(200))
     date_added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     #password stuff
     password_hash = db.Column(db.String(128), nullable=False)
@@ -101,6 +101,11 @@ class CustomerForm(FlaskForm):
 
 class NamerForm(FlaskForm):
     name = StringField("Whats your name", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+class PasswordForm(FlaskForm):
+    email = StringField("Whats your email", validators=[DataRequired()])
+    password_hash = PasswordField("What's your Password hash", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 @app.route('/customer/add', methods =['GET', 'POST'])
@@ -167,4 +172,27 @@ def name():
 
     return render_template("name.html", 
             name = name, 
+            form = form)
+#Password Test Page
+@app.route('/test_pw', methods=['GET', 'POST'])
+def test_pw():
+    email = None
+    password = None
+    pw_to_check = None
+    passed = None
+    form = PasswordForm()
+    #Validate Form
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password_hash.data
+        #Clear the form
+        form.email.data = ''
+        form.password_hash.data = ''
+
+        pw_to_check = Customers.query.filter_by(email=email).first()
+        
+    return render_template("test_pw.html", 
+            email = email, 
+            password = password,
+            pw_to_check = pw_to_check,
             form = form)
