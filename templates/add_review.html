@@ -1,0 +1,45 @@
+{% extends "base.html" %} 
+{% block content %}
+    
+{% for message in get_flashed_messages() %}
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>      
+{% endfor %}
+     
+{% if name %}
+        <h1>Customer Added!</h1>
+        <br/><br/>
+{% else %}
+        <h1>Customer List</h1>
+        </br>
+        <form method="POST">
+                {{ form.hidden_tag() }}
+
+                {{ form.favorite_color.label(class="form-label") }}
+
+                {{ form.favorite_color(
+                    class="form-control") }}
+                <br/>
+             {{ form.submit(class="btn 
+                btn-primary") }}
+        </form>
+<br/><br/><br/>
+<table class="table table-hover
+table-bordered table-striped">
+
+{% for our_customer in our_customers %}
+    <tr>
+    <td>{{ our_customer.id }}. <a href="{{
+    url_for('review', id=our_customer.id)}}">{{ 
+    our_customer.favorite_color}}</a> 
+    </td>
+    </tr>                               
+{% endfor %}
+ </table>                               
+{% endif %} 
+{% endblock %}
+     
+   
+    

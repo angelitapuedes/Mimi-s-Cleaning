@@ -91,6 +91,31 @@ def update(id):
             name_to_update = name_to_update,
             id = id)
     
+#review
+@app.route('/review/<int:id>', methods=['GET', 'POST'])
+def review(id):
+    form = CustomerForm()
+    review_to_update = Customers.query.get_or_404(id)
+    if request.method == "POST":
+        review_to_update.favorite_color = request.form['favorite_color']
+        try:
+            db.session.commit()
+
+            flash("Customer Review Successfully!")
+            return render_template("add_review.html", 
+                form=form, 
+                review_to_update = review_to_update)
+        except:
+            flash("Looks like there was a problem...try again")
+            return render_template("add_review.html", 
+                form=form, 
+                review_to_update = review_to_update)
+    else:
+        return render_template("add_review.html", 
+            form=form, 
+            review_to_update = review_to_update,
+            id = id)
+    
 class CustomerForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
