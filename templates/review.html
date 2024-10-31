@@ -1,0 +1,29 @@
+{% extends "base.html" %} {% block content %} {% for message in
+    get_flashed_messages() %}
+    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+    {% endfor %}
+
+    <h1>Reviews...</h1>
+</br>
+<div>
+    <h3>By: {{review.author }}</h3>
+    <medium>Clean Type: {{review.cleantype }}<br/>
+    {{ review.date_posted }}</medium>
+    <br/>
+    {{review.content }}
+    <br/><br/>
+</div>
+
+<a href="{{url_for('reviews')}}" class="
+btn btn-outline-secondary btn-sm">Back 
+To Review</a>
+</br>
+{% endblock %}

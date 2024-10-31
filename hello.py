@@ -2,10 +2,12 @@ from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
-import datetime 
+import datetime
+from datetime import date
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from wtforms.widgets import TextArea
 
 app = Flask(__name__)
 #Add Database
@@ -18,6 +20,98 @@ app.config['SECRET_KEY'] = "Secret Key"
 #Initialize db
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+#Create a Blog Post model
+class Reviews(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cleantype = db.Column(db.String(250))
+    content = db.Column(db.Text)
+    author = db.Column(db.String(255))
+    date_posted = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+#Create a Review Form
+class ReviewForm(FlaskForm):
+    cleantype = StringField("Title for Clean", validators=[DataRequired()])
+    content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+    author = StringField("Author", validators=[DataRequired()])
+    submit = SubmitField("Submit")
+
+@app.route('/reviews')
+def reviews():
+    reviews = Reviews.query.order_by(Reviews.date_posted)
+    return render_template("reviews.html", reviews=reviews)
+
+
+@app.route('/review/<int:id>')
+def review(id):
+    review = Reviews.query.get_or_404(id)
+    return render_template('review.html', review=review)
+
+class PostForm(FlaskForm):
+	title = StringField("Title", validators=[DataRequired()])
+	#content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+	content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+	#author = StringField("Author")
+	slug = StringField("Slug", validators=[DataRequired()])
+	submit = SubmitField("Submit")
+
+@app.route('/posts')
+def posts():
+	# Grab all the posts from the database
+	posts = Posts.query.order_by(Posts.date_posted)
+	return render_template("posts.html", posts=posts)
+
+# Add Post Page
+@app.route('/add_post', methods=['GET', 'POST'])
+#@login_required
+def add_post():
+	form = PostForm()
+
+	if form.validate_on_submit():
+		
+		post = Posts(title=form.title.data, content=form.content.data, slug=form.slug.data)
+		# Clear The Form
+		form.title.data = ''
+		form.content.data = ''
+		#form.author.data = ''
+		form.slug.data = ''
+
+		# Add post data to database
+		db.session.add(post)
+		db.session.commit()
+
+		# Return a Message
+		flash("Blog Post Submitted Successfully!")
+
+	# Redirect to the webpage
+	return render_template("add_post.html", form=form)
+# Add Post Page
+@app.route('/add_review', methods=['GET', 'POST'])
+def add_review():
+    form = ReviewForm()
+    if form.validate_on_submit():
+        post = Reviews(cleantype=form.cleantype.data, content=form.content.data, author=form.author.data)
+        #Clear Form
+        form.cleantype.data = ''
+        form.content.data = ''
+        form.author.data = ''
+    #Add to datababse
+        db.session.add(post)
+        db.session.commit()
+
+        flash("Review Submitted!")
+        #Redirect
+    return render_template("add_review.html", form=form)
+
+@app.route('/rates')
+def get_rates():
+    rates = {
+        "1st time cleans": "$75 per hour",
+        "Monthly Client": "$65 per hour",
+        "Referrals program": "10 percent off next clean"
+    }
+    return rates
+    #return {"Date": date.today()}
 
 @app.route('/delete/<int:id>')
 def delete(id):
@@ -41,11 +135,21 @@ def delete(id):
             our_customers=our_customers)
 
 #Create a Model
+# Create a Blog Post model
+class Posts(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	title = db.Column(db.String(255))
+	content = db.Column(db.Text)
+	#author = db.Column(db.String(255))
+	date_posted = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+	slug = db.Column(db.String(255))
+	# Foreign Key To Link Users (refer to primary key of the user)
+
 class Customers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(120), nullable=False, unique=True)
-    clean_package = db.Column(db.String(200))
+    favorite_color = db.Column(db.String(120))
     date_added = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     #password stuff
     password_hash = db.Column(db.String(128), nullable=False)
@@ -91,31 +195,6 @@ def update(id):
             name_to_update = name_to_update,
             id = id)
     
-#review
-@app.route('/review/<int:id>', methods=['GET', 'POST'])
-def review(id):
-    form = CustomerForm()
-    review_to_update = Customers.query.get_or_404(id)
-    if request.method == "POST":
-        review_to_update.favorite_color = request.form['favorite_color']
-        try:
-            db.session.commit()
-
-            flash("Customer Review Successfully!")
-            return render_template("add_review.html", 
-                form=form, 
-                review_to_update = review_to_update)
-        except:
-            flash("Looks like there was a problem...try again")
-            return render_template("add_review.html", 
-                form=form, 
-                review_to_update = review_to_update)
-    else:
-        return render_template("add_review.html", 
-            form=form, 
-            review_to_update = review_to_update,
-            id = id)
-    
 class CustomerForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
@@ -126,11 +205,6 @@ class CustomerForm(FlaskForm):
 
 class NamerForm(FlaskForm):
     name = StringField("Whats your name", validators=[DataRequired()])
-    submit = SubmitField("Submit")
-
-class PasswordForm(FlaskForm):
-    email = StringField("Whats your email", validators=[DataRequired()])
-    password_hash = PasswordField("What's your Password hash", validators=[DataRequired()])
     submit = SubmitField("Submit")
 
 @app.route('/customer/add', methods =['GET', 'POST'])
@@ -197,27 +271,4 @@ def name():
 
     return render_template("name.html", 
             name = name, 
-            form = form)
-#Password Test Page
-@app.route('/test_pw', methods=['GET', 'POST'])
-def test_pw():
-    email = None
-    password = None
-    pw_to_check = None
-    passed = None
-    form = PasswordForm()
-    #Validate Form
-    if form.validate_on_submit():
-        email = form.email.data
-        password = form.password_hash.data
-        #Clear the form
-        form.email.data = ''
-        form.password_hash.data = ''
-
-        pw_to_check = Customers.query.filter_by(email=email).first()
-        
-    return render_template("test_pw.html", 
-            email = email, 
-            password = password,
-            pw_to_check = pw_to_check,
             form = form)
