@@ -11,23 +11,19 @@
     </div>
     {% endfor %}
 
-    <h1>Reviews...</h1>
+    <h1>Posts...</h1>
 </br>
 <div>
-    <h3>By: {{review.author }}</h3>
-    <medium>Clean Type: {{review.cleantype }}<br/>
-    {{ review.date_posted }}</medium>
+    <h3>By: {{post.author }}</h3>
+    <medium>Clean Type: {{post.cleantype }}<br/>
+    {{ post.date_posted }}</medium>
     <br/>
-    {{review.content }}
+    {{post.content }}
     <br/><br/>
 </div>
 
-<a href="{{url_for('reviews')}}" class="
+<a href="{{url_for('posts')}}" class="
 btn btn-outline-secondary btn-sm">Back 
-To Review</a>
-
-<a href="{{url_for('edit_reviews')}}" class="
-btn btn-outline-secondary btn-sm">Edit Review</a>
-
+To Posts</a>
 </br>
 {% endblock %}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template, flash, request, redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
@@ -47,6 +47,23 @@ def review(id):
     review = Reviews.query.get_or_404(id)
     return render_template('review.html', review=review)
 
+@app.route('/reviews/edit/<int:id>', methods=['GET', 'POST'])
+def edit_review(id):
+     review = Reviews.query.get_or_404(id)
+     form = ReviewForm()
+     if form.validate_on_submit():
+          review.author = form.author.data
+          review.content = form.content.data
+          #update to database
+          db.session.add(review)
+          db.session.commit()
+          flash("Review has been updated")
+          return redirect(url_for('reviews', id=review.id))
+     form.author.data = review.author
+     form.content.data = review.content
+     return render_template('edit_review.html', form=form)
+
+
 class PostForm(FlaskForm):
 	title = StringField("Title", validators=[DataRequired()])
 	#content = StringField("Content", validators=[DataRequired()], widget=TextArea())
@@ -54,6 +71,26 @@ class PostForm(FlaskForm):
 	#author = StringField("Author")
 	slug = StringField("Slug", validators=[DataRequired()])
 	submit = SubmitField("Submit")
+
+@app.route('/posts/<int:id>')
+def post(id):
+    post = Posts.query.get_or_404(id)
+    return render_template('post.html', post=post)
+
+@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
+def edit_post(id):
+     post = Posts.query.get_or_404(id)
+     form = PostForm()
+     if form.validate_on_submit():
+          post.title = form.title.data
+          post.author = form.author.data
+          post.slug = form.slug.data
+          post.content = form.content.data
+          #update to database
+          db.session.add(post)
+          db.session.commit()
+          flash("Post has been updated")
+          return redirect(url_for('post', id=post.id))
 
 @app.route('/posts')
 def posts():
@@ -85,6 +122,7 @@ def add_post():
 
 	# Redirect to the webpage
 	return render_template("add_post.html", form=form)
+
 # Add Post Page
 @app.route('/add_review', methods=['GET', 'POST'])
 def add_review():
